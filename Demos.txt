@@ -1,0 +1,63 @@
+mkdir out
+
+####################################################
+require 'facade'
+
+property :e1 => [Array] do |a|
+  a.any? { |e| e > 0 }
+end
+
+PList[Property[:e1]] | Visualizer.new('out', true)
+_.output
+
+PList[Property[:e1]] | 
+do! { |i| 
+  r = ResultCollector.new
+  i.first.call([-1] * 1000 + [1], r)
+  i.first.cover_table.add_result(r); i } | 
+Visualizer.new('out', true)
+_.output
+
+PList[Property[:e1]] | 
+do! { |i| 
+  r = ResultCollector.new
+  i.first.call([-1, 1], r)
+  i.first.cover_table.add_result(r); i } | 
+Visualizer.new('out', true)
+_.output
+
+###################################################
+
+def foo(a, b)
+  if a == 87 and b == 88
+    raise 'foo crashed'
+  else
+    true
+  end
+end
+
+property :e2 => [Fixnum, Fixnum] do |a,b|
+  ((a > 86) & (a <= 88) & (b > 86) & (b <= 88)) ? foo(a,b) : true
+end
+
+PList[Property[:e2]] | ComplexRunner.new('errors.db', RandomStrategy.new) | Visualizer.new('out', true)
+_.output; nil
+
+PList[Property[:e2]] | GeneticRunner.new
+_.output; nil
+
+###################################################
+
+def bar(a)
+  Math.sqrt(a) + 1
+end
+
+property :e3 => [Fixnum] do |x|
+  x >= 0 ? bar(x) != 28 : true
+end
+
+PList[Property[:e3]] | ComplexRunner.new('errors.db', RandomStrategy.new) | Visualizer.new('out', true)
+_.output; nil
+
+PList[Property[:e3]] | GeneticRunner.new(15, 200)
+_.output; nil

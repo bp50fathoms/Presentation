@@ -1,0 +1,239 @@
+== Estilo ==
+
+* Muy simple
+* Muy gráfico
+* Introducir definiciones formales donde proceda
+* No abusar de enumeraciones (puntos)
+
+== Presentación ==
+
+* Escala de grises
+* Para resaltar un poco utilizar cursiva
+* Para resaltar mucho utilizar colores primarios, preferentemente rojo
+
+* Fuentes
+** Principal: Gill Sans
+** Código: Monaco
+
+* Figuras
+** Siempre vectoriales
+** Utilizar sombras prudentemente
+
+* Programas
+** Escritos en fuente de ancho fijo: Monaco
+** Indentados con 2 espacios
+** Palabras clave del DSL en azul
+** Comprobar sintaxis válida
+
+== Estructura ==
+
+# Problema
+# Otras soluciones
+
+------------------- 1-5
+
+# Mi solución
+
+------------------- 6-20
+
+# Conclusiones
+# Otras consideraciones
+# Trabajo futuro
+
+------------------- 21-25
+
+== Contenido ==
+
+#1
+* Definición de prueba
+* Contraste con métodos formales
+* Definición de unit testing
+
+Software Testing
+
+“Empirical investigation conducted to provide information about the quality of a product”Aim – show the presence of bugsUnit testing – check components in isolation
+
+- La prueba es un proceso empírico en contraste con los métodos formales. Como la prueba exhaustiva es imposible, el único objetivo es mostrar la presencia de errores. Nos centramos en unit testing, que trata de probar los componentes elementales o units aisladamente.
+
+#2
+* Proceso de prueba
+
+Testing process
+
+Model software's environment
+Select test cases
+Run and evaluate test cases
+Measure progress
+
+- Para comprender mejor las limitaciones de los frameworks que se utilizan para hacer automatic unit testing es necesario tener claro un modelo del proceso de prueba... (explicar pasos)
+
+#3
+
+Classical Unit Testing
+
+<ejemplo de código reverse con JUnit>
+
+- La ausencia de un mecanismo para modelar el software obliga a ir probando diferentes partes de la especificación con diferentes casos de prueba. Únicamente se automatiza la ejecución y evaluación de los casos de prueba (ver explicación en primer capítulo).
+
+#4
+
+Specification-Based Unit Testing
+
+Property – f: T -> {true, false}
+
+Test case – value of type T
+
+#5
+
+Property <ejemplo de código reverse con QuickCheck>
+
+Test case"
+
+== ==
+
+# 1
+
+Pasar uno tras otro
+
+# 2
+* Modelo de prueba
+
+Testing Process
+
+1 Model software's environment
+2 Select test cases
+3 Run and evaluate cases
+4 Measure test progress
+
+Utilizar cajas como en TEMO y poner bucle de 4 a 2
+Poner cajas una a una y añadir bucle en transición
+
+# 3
+* Classical automated unit testing
+* Ejemplo con código
+* Problemas, citando al modelo de prueba
+
+Resaltar @Test y assertTrue
+
+# 4
+* Definición de propiedad
+
+# 5
+* QuickCheck / SmallCheck
+* Ejemplo de código
+
+# 6
+* Limitaciones
+* Objetivos
+
+# 6
+* Hipótesis o principios de mi solución
+
+# 8
+* Componentes
+* Arquitectura
+* Pipes & filters
+* Adapter
+* Decorator
+* Command
+
+# 9
+* Property
+* Namespace
+* DSL
+
+# 10
+* Instrumentation
+
+
+* Property y DSL
+* Contract y DSL
+* Simple, ComplexRunner
+
+
+
+* Libraries
+* Pipeline
+* Property
+* Contract
+* Runner
+* Simple Runner
+* Complex Runner
+* Strategy
+* Random
+* Exhaustive
+* Historic
+* Human
+* UI
+* TextUI
+* BatchUI
+* Genetic
+
+* Empezar explicando a partir del título: specification.
+
+* Enumerar principios, restricciones...
+
+* Al no haber código detrás, los ejemplos se parecen más a theorem disproving que a unit testing.
+* Explicar por componentes
+
+* Describir lenguaje con notación BNF, acordarse de cuantificadores, condicionales, composición, etc. Ver pvisitor para más detalles.
+
+* Otras consideraciones
+** Los ejemplos expuestos son deliberadamente sencillos
+
+* Trabajo futuro
+** Genetic testing, técnica de búsqueda potente y general, buscar buenas seeds, mutation y recombination para otros tipos y tipos compuestos
+** Program analysis
+
+== Ejemplos ==
+
+* Propiedad sencilla y cobertura
+* Composición y negación
+
+require 'facade'
+
+property :e1 => [Array] do |a|
+  a.any? { |e| e > 0 }
+end
+
+Para todo array de enteros se cumple que existe un elemento e tal que e > 0
+
+PList[Property[:e1]] | Visualizer.new('out', true)
+_.output
+
+PList[Property[:e1]] | 
+do! { |i| 
+  r = ResultCollector.new
+  i.first.call([-1] * 1000 + [1], r)
+  i.first.cover_table.add_result(r); i } | 
+Visualizer.new('out', true)
+_.output
+
+* Propiedad difícil de falsificar
+
+def foo(a, b)
+  if a == 87 and b == 88
+    raise 'foo crashed'
+  else
+    true
+  end
+end
+
+property :e2 => [Fixnum, Fixnum] do |a,b|
+  ((a > 86) & (a <= 88) & (b > 86) & (b <= 88)) ? foo(a,b) : true
+end
+
+# PList[Property[:e2]] | ComplexRunner.new(...
+
+PList[Property[:e2]] | GeneticRunner.new
+_.output; nil
+
+* Contrato sobre función libre, ejecutar con Random y con genetic
+
+* Transformar en contrato
+* Es un ejemplo de que la cobertura de propiedades no lo es todo
+* Quizás hacer más complicado con función tridimensional (2 entradas)
+
+property :e3 => [Fixnum] do |x|
+  x >= 0 ? Math.sqrt(x) + 1 != 28 : true
+end

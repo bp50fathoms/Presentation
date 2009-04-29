@@ -1,7 +1,7 @@
 mkdir out
 
 ####################################################
-require 'facade'
+require 'testframework'
 
 property :e1 => [Array] do |a|
   a.any? { |e| e > 0 }
@@ -47,6 +47,19 @@ PList[Property[:e2]] | GeneticRunner.new
 _.output; nil
 
 ###################################################
+
+Contract.new(Math.method(:sqrt), [Fixnum]) do
+ requires { |e| e >= 0 }
+ ensures { |e,r| (r + 1) != 28 }
+end
+
+PList[Property[:'.sqrt']] | ComplexRunner.new('errors.db', RandomStrategy.new) | Visualizer.new('out', true)
+_.output; nil
+
+PList[Property[:'.sqrt']] | GeneticRunner.new(15, 200)
+_.output; nil
+
+##################################################
 
 def bar(a)
   Math.sqrt(a) + 1
